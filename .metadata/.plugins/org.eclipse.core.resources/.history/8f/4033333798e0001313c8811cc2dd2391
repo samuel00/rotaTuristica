@@ -1,0 +1,171 @@
+package com.example.rotaturistica;
+
+import java.util.List;
+
+import com.example.controller.AtracaoController;
+import com.example.entidade.Atracao;
+import com.example.entidade.PontoLocalizavel;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import android.content.Context;
+import android.content.Intent;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.util.Log;
+
+public class NearMap extends FragmentActivity implements LocationListener{
+
+	NearMap nearMap = this;
+	private long idTipo;
+	private String item;
+	private  LatLng VOCE;
+	private LatLng DESTINO;
+	private int icone;
+
+	private List<PontoLocalizavel> listaDePontoLocalizavel;
+	private List<PontoLocalizavel> listaDePontoLocalizavelProximo;
+
+	private GoogleMap map;
+	private LocationManager locationManager;
+	Marker voceMarker;
+
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.mapa);
+		SupportMapFragment mapFrag = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+		map = mapFrag.getMap();
+		map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+		Intent getIntent = getIntent();
+		idTipo = getIntent.getLongExtra("idTipo",0);
+		item = getIntent.getStringExtra("item");
+		icone = getIntent.getIntExtra("icone", 0);
+
+
+		LatLng inicio = new LatLng(-1.452786, -48.485642);
+		VOCE = new LatLng(-1.449429, -48.500478);
+		map.moveCamera(CameraUpdateFactory.newLatLngZoom(inicio,13));
+
+		if(item.equalsIgnoreCase("atracao")){
+			AtracaoController controller = new AtracaoController();
+			listaDePontoLocalizavel = controller.getPontosLocalizaveis(this, idTipo);
+		}
+
+		
+
+		addMarkers();
+
+		//		locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+		//
+		//		Listener listener = new Listener();
+		//
+		//		long tempoAtualizacao = 0;
+		//		float distancia = 0;
+		//
+		//		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, tempoAtualizacao, distancia, listener);
+		//
+		//		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, tempoAtualizacao, distancia, listener);
+
+
+	}
+
+
+
+	private void addMarkers() {
+		Location locationA = new Location("B");
+		locationA.setLatitude(VOCE.latitude);
+		locationA.setLongitude(VOCE.longitude);
+
+		if (map != null) {
+			BitmapDescriptor iconVoce = BitmapDescriptorFactory.fromResource(R.drawable.tourist);
+			BitmapDescriptor iconDestino = BitmapDescriptorFactory.fromResource(icone);
+
+			if(voceMarker != null)
+				voceMarker.remove();
+
+			voceMarker = map.addMarker(new MarkerOptions().position(VOCE)
+					.title("Você").icon(iconVoce));
+			for(int i=0; i < listaDePontoLocalizavel.size(); i++){
+				Location locationB = new Location("B");
+				locationB.setLatitude(listaDePontoLocalizavel.get(i).getLatitude());
+				locationB.setLongitude(listaDePontoLocalizavel.get(i).getLongitude());
+				if(locationA.distanceTo(locationB) <= 1000){
+					DESTINO = new LatLng(listaDePontoLocalizavel.get(i).getLatitude(), listaDePontoLocalizavel.get(i).getLongitude());
+					map.addMarker(new MarkerOptions().position(DESTINO)
+							.title(listaDePontoLocalizavel.get(i).getNome()).icon(iconDestino));
+				}
+			}
+		}
+	}
+
+	@Override
+	public void onLocationChanged(Location location) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onProviderEnabled(String provider) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onProviderDisabled(String provider) {
+		// TODO Auto-generated method stub
+
+	}
+
+	private class Listener implements LocationListener {
+
+		@Override
+		public void onLocationChanged(Location location) {
+			String latitudeStr = String.valueOf(location.getLatitude());
+			String longitudeStr = String.valueOf(location.getLongitude());
+			VOCE = new LatLng(location.getLatitude(), location.getLongitude());
+
+
+
+			map.moveCamera(CameraUpdateFactory.newLatLngZoom(VOCE,20));
+			addMarkers();
+		}
+
+		@Override
+		public void onStatusChanged(String provider, int status, Bundle extras) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void onProviderEnabled(String provider) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void onProviderDisabled(String provider) {
+			// TODO Auto-generated method stub
+
+		}
+
+	}
+
+}

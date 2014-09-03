@@ -1,0 +1,131 @@
+package com.example.rotaturistica;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBar;
+import android.support.v4.app.Fragment;
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.StrictMode;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.os.Build;
+
+@TargetApi(Build.VERSION_CODES.GINGERBREAD)
+@SuppressLint("NewApi")
+public class JsonActivity extends ActionBarActivity {
+
+	@TargetApi(Build.VERSION_CODES.GINGERBREAD)
+	@SuppressLint("NewApi")
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.fragment_json);
+
+		StrictMode.ThreadPolicy policy = new StrictMode.
+				ThreadPolicy.Builder().permitAll().build();
+		StrictMode.setThreadPolicy(policy); 
+
+		new JsonTask().execute();
+
+
+
+	}
+
+
+
+
+
+
+
+	public static class PlaceholderFragment extends Fragment {
+
+		public PlaceholderFragment() {
+		}
+
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+			View rootView = inflater.inflate(R.layout.fragment_json, container,
+					false);
+			return rootView;
+		}
+	}
+
+	private class JsonTask extends AsyncTask<Void, Void, Void>{
+
+		@Override
+		protected Void doInBackground(Void... params) {
+			String readTwitterFeed = readTwitterFeed();
+			try {
+				//				JSONArray jsonArray = new JSONArray(readTwitterFeed);
+				JSONObject jsonObject = new JSONObject(readTwitterFeed);
+				JSONObject jsonObject2 = new JSONObject(jsonObject.getString("atracao"));
+				JSONArray jsonArray = new JSONArray(jsonObject2.getString("listaDeAtracaoTuristica"));
+					JSONObject jsonObject3 = jsonArray.getJSONObject(0);
+					JSONArray jsonArray2 = new JSONArray(jsonObject3.getString("atracao_turistica"));
+					Log.w(JsonActivity.class.getName(), 	"Number of entries " + jsonArray2.length());
+					for (int i = 0; i < jsonArray2.length(); i++) {
+						JSONObject jsonObject4 = jsonArray2.getJSONObject(i);
+						String nome = jsonObject4.getString("nome");
+						Log.w(JsonActivity.class.getName(), "Nome - " + nome);
+					}
+			} catch (Exception e) {
+				Log.w(JsonActivity.class.getName(), "Deu erro");
+				e.printStackTrace();
+			}
+			return null;
+		}
+
+		private String readTwitterFeed() {
+			StringBuilder builder = new StringBuilder();
+			HttpClient client = new DefaultHttpClient();
+			HttpGet httpGet = new HttpGet("http://10.0.2.2:8282/WSRotaTuristica/atracoes");
+			try {
+				HttpResponse response = client.execute(httpGet);
+				StatusLine statusLine = response.getStatusLine();
+				int statusCode = statusLine.getStatusCode();
+				if (statusCode == 200) {
+					HttpEntity entity = response.getEntity();
+					InputStream content = entity.getContent();
+					BufferedReader reader = new BufferedReader(new InputStreamReader(content));
+					String line;
+					while ((line = reader.readLine()) != null) {
+						builder.append(line);
+					}
+				} else {
+					Log.e(JsonActivity.class.toString(), "Failed to download file");
+				}
+			} catch (ClientProtocolException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			return builder.toString();
+		}
+
+
+
+	}
+
+}

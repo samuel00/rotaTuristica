@@ -1,0 +1,15 @@
+package com.example.utils;
+
+public class EnderecoServidor {
+	
+	private String endereco;
+	
+	public EnderecoServidor(){
+//		this.endereco = "http://10.0.2.2:8282/WSRotaTuristica/";
+		this.endereco = "http://10.64.2.196:8282/WSRotaTuristica/";
+	}
+	
+	public String getEndereco(){
+		return this.endereco;
+	}
+}

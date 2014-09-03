@@ -1,0 +1,93 @@
+ <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.example.telas.MainActivity$PlaceholderFragment" >
+
+     <LinearLayout
+         style="@style/LinearLayout_tela_inicial"
+         android:layout_weight="0.06"
+         android:gravity="center" >
+
+         <ImageView
+             android:id="@+id/image_icon"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:contentDescription="@+id/image_icon"
+             android:src="@drawable/para" />
+     </LinearLayout>
+     <View style="@style/View_paraEspacamento"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" 
+        android:gravity="center"
+        style="@style/LinearLayout_vertical" >
+
+        <ImageView
+            android:id="@+id/servicos"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/service" 
+            android:background="@android:color/black"
+            android:onClick="exibirServico"
+            android:contentDescription="@+id/servicos"/>
+
+        <ImageView
+            android:id="@+id/atracoes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="70dp"
+            android:layout_marginRight="70dp"
+            android:background="@android:color/black"
+            android:onClick="exibirAtracao"
+            android:src="@drawable/theater" 
+            android:contentDescription="@+id/atracoes"/>
+
+        <ImageView
+            android:id="@+id/rotas"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/direction_uturn"
+            android:background="@android:color/black" 
+            android:onClick="exibirRota"
+            android:contentDescription="@+id/rotas"/>
+
+    </LinearLayout>
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"  >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Servicos"
+            android:layout_marginRight="20dp"
+            android:textSize="18sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Atrativos"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:textSize="18sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rotas"
+            android:layout_marginLeft="20dp"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+
+</LinearLayout>

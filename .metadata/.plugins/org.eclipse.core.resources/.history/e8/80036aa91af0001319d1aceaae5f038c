@@ -1,0 +1,179 @@
+package com.example.rotaturistica;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBar;
+import android.support.v4.app.Fragment;
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.StrictMode;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.os.Build;
+
+@TargetApi(Build.VERSION_CODES.GINGERBREAD)
+@SuppressLint("NewApi")
+public class JsonActivity extends ActionBarActivity {
+
+	@TargetApi(Build.VERSION_CODES.GINGERBREAD)
+	@SuppressLint("NewApi")
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.fragment_json);
+
+		StrictMode.ThreadPolicy policy = new StrictMode.
+				ThreadPolicy.Builder().permitAll().build();
+		StrictMode.setThreadPolicy(policy); 
+
+		new JsonTask().execute();
+
+
+
+	}
+
+
+
+
+
+
+
+	public static class PlaceholderFragment extends Fragment {
+
+		public PlaceholderFragment() {
+		}
+
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+			View rootView = inflater.inflate(R.layout.fragment_json, container,
+					false);
+			return rootView;
+		}
+	}
+
+	private class JsonTask extends AsyncTask<Void, Void, Void>{
+
+		@Override
+		protected Void doInBackground(Void... params) {
+			String atracaoSelecionadaJson = atracaoSelecionadaJson();
+			try {
+				JSONObject jsonObject = new JSONObject(atracaoSelecionadaJson);
+				JSONObject jsonObjectTipo = new JSONObject(jsonObject.getString("atracao"));
+				JSONArray jsonArraylistaDeTipoAtracao = new JSONArray(jsonObjectTipo.getString("listaDeAtracaoTuristica"));
+				JSONObject jsonObject3 = jsonArraylistaDeTipoAtracao.getJSONObject(0);
+				JSONArray jsonReal = new JSONArray(jsonObject3.getString("atracao_turistica"));
+				String [] json = new String[jsonReal.length()];
+				for (int i = 0; i < jsonReal.length(); i++) {
+
+					JSONObject jsonObject4 = jsonReal.getJSONObject(i);
+					String nome = jsonObject4.getString("nome");
+					long id = Long.parseLong(jsonObject4.getString("id"));
+					JSONArray listaDeDescricao = new JSONArray(jsonObject4.getString("descricao"));
+					JSONObject descricaoObject = listaDeDescricao.getJSONObject(0);
+					listaDeDescricao = new JSONArray(descricaoObject.getString("descricao"));
+					descricaoObject = listaDeDescricao.getJSONObject(0);
+					listaDeDescricao = new JSONArray(descricaoObject.getString("descricao"));
+					String descricao = listaDeDescricao.getString(0);
+					Log.w("","nome - " + nome + "\ndescricao - " + descricao);
+					String multimidiaJson = multimidiaJson(3);
+					JSONObject multimidiaObject = new JSONObject(multimidiaJson);
+					multimidiaObject = new JSONObject(multimidiaObject.getString("multimidia"));
+					JSONArray jsonArraylistaDeMultimidia = new JSONArray(multimidiaObject.getString("listaDeMultimidia"));
+					Log.w("","Tamanho - " + jsonArraylistaDeMultimidia.length());
+					for(int j =0; j < jsonArraylistaDeMultimidia.length(); j++){
+						JSONObject jsonObject5 = jsonArraylistaDeMultimidia.getJSONObject(j);
+						multimidiaObject = new JSONObject(jsonObject5.getString("multimidia"));
+						String multimidia = multimidiaObject.getString("url");
+						Log.w("","URL - " + multimidia);
+					}
+					json[i] = nome + "-" + id;
+
+				}
+			} catch (Exception e) {
+				Log.w(JsonActivity.class.getName(), "Deu erro");
+				e.printStackTrace();
+			}
+			return null;
+		}
+
+		private String multimidiaJson(long id) {
+			Log.w("", "ID - " + id);
+			StringBuilder builder = new StringBuilder();
+			HttpClient client = new DefaultHttpClient();
+			HttpGet httpGet = new HttpGet("http://10.0.2.2:8282/WSRotaTuristica/multimidias/"+id);
+			try {
+				HttpResponse response = client.execute(httpGet);
+				StatusLine statusLine = response.getStatusLine();
+				int statusCode = statusLine.getStatusCode();
+				if (statusCode == 200) {
+					HttpEntity entity = response.getEntity();
+					InputStream content = entity.getContent();
+					BufferedReader reader = new BufferedReader(new InputStreamReader(content));
+					String line;
+					while ((line = reader.readLine()) != null) {
+						builder.append(line);
+					}
+				} else {
+					Log.e(JsonActivity.class.toString(), "Failed to download file");
+				}
+			} catch (ClientProtocolException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			return builder.toString();
+		}
+
+		private String atracaoSelecionadaJson() {
+			StringBuilder builder = new StringBuilder();
+			HttpClient client = new DefaultHttpClient();
+			HttpGet httpGet = new HttpGet("http://10.0.2.2:8282/WSRotaTuristica/atracoes/1");
+			try {
+				HttpResponse response = client.execute(httpGet);
+				StatusLine statusLine = response.getStatusLine();
+				int statusCode = statusLine.getStatusCode();
+				if (statusCode == 200) {
+					HttpEntity entity = response.getEntity();
+					InputStream content = entity.getContent();
+					BufferedReader reader = new BufferedReader(new InputStreamReader(content));
+					String line;
+					while ((line = reader.readLine()) != null) {
+						builder.append(line);
+					}
+				} else {
+					Log.e(JsonActivity.class.toString(), "Failed to download file");
+				}
+			} catch (ClientProtocolException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			return builder.toString();
+		}
+
+
+
+	}
+
+}

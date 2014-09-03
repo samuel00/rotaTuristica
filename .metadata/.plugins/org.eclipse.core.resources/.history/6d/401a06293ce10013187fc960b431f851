@@ -1,0 +1,58 @@
+package com.example.rotaturistica;
+
+import android.app.Activity;
+import android.app.ListActivity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+public class DetalhesActivity extends FragmentActivity {
+	
+	private TextView descricaoText;
+	ImageView imageView;
+	
+	protected void onCreate(Bundle savedInstanceState) {
+
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.detalhes);
+		
+		Intent intent = getIntent();
+		
+		String mDrawableName = "estacao_das_docas";
+		int resId = getResources().getIdentifier(mDrawableName , "drawable", getPackageName());
+		
+		descricaoText =(TextView) findViewById(R.id.descricao);
+		imageView = (ImageView) findViewById(R.id.atracaoImage);
+		
+		String descricao = intent.getStringExtra("descricao");
+		descricaoText.setText(descricao);
+		imageView.setImageResource(resId);
+	}
+
+	public void verNoMapa(View view){
+		if(view.getId() == R.id.mapaButton){
+
+			Intent intent = getIntent();
+			long idServico = intent.getLongExtra("idItem",0);
+			long idTipoServico = intent.getLongExtra("idTipo", 0);
+			double latitude = intent.getDoubleExtra("latitude", 0);
+			double longitude = intent.getDoubleExtra("longitude", 0);
+			String servicoNome = intent.getStringExtra("nome");
+			int icone = intent.getIntExtra("icone", 0);
+
+			Intent intent2 = new Intent(this, Mapa.class);
+			intent2.putExtra("idItem",idServico);
+			intent2.putExtra("latitude",latitude);
+			intent2.putExtra("longitude",longitude);
+			intent2.putExtra("idTipo", idTipoServico);
+			intent2.putExtra("nome", servicoNome);
+			intent2.putExtra("icone", icone);
+			startActivity(intent2);
+		}
+
+	}
+}

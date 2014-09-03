@@ -1,0 +1,116 @@
+package com.example.rotaturistica;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import android.app.ListActivity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.SimpleAdapter;
+import android.widget.AdapterView.OnItemClickListener;
+
+import com.example.controller.AtracaoController;
+import com.example.entidade.Atracao;
+
+public class AtracaoSelecionadoActivity extends ListActivity implements OnItemClickListener{
+
+	private List<Map<String, Object>> atracoes ;
+
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		String[] from = {"atracaoNome", "descricao", "id", "latitude", "longitude", "idTipoAtracao", "icone"};
+		int[] to = {R.id.atracao};
+
+
+		SimpleAdapter adapter =	new SimpleAdapter(this, listarAtracaoSelecionada(),R.layout.lista_atracao_selecionado, from, to);
+		setListAdapter(adapter);
+		getListView().setOnItemClickListener(this);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.atracao_proxima, menu);
+		return true;
+	} 
+
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.near:
+			Intent getIntent = getIntent();
+			long idTipoAtracao = getIntent.getLongExtra("idTipoAtracao",0);
+			int icone = getIntent.getIntExtra("icone", 0);
+			Intent intent= new Intent(this, NearMap.class);
+			intent.putExtra("idTipo", idTipoAtracao);
+			intent.putExtra("item", "atracao");
+			intent.putExtra("icone", icone);
+			startActivity(intent);
+			return true;
+		default:
+			return super.onMenuItemSelected(featureId, item);
+		}
+	}
+
+
+		private List<Map<String, Object>> listarAtracaoSelecionada() {
+
+			Intent intent = getIntent();
+			long idAtracao = intent.getLongExtra("idAtracao",0);
+			long idTipoAtracao = intent.getLongExtra("idTipoAtracao",0);
+			int icone = intent.getIntExtra("icone", 0);
+
+			atracoes = new ArrayList<Map<String,Object>>();
+			AtracaoController atracao = new AtracaoController();
+			List<Atracao> listaDeAtracao = new ArrayList<Atracao>();
+
+
+			listaDeAtracao = atracao.getAtracoes(this, idAtracao);
+
+			for(int i = 0; i < listaDeAtracao.size(); i++){
+
+				Map<String, Object> item = new HashMap<String, Object>();
+
+				item.put("atracaoNome", listaDeAtracao.get(i).getItemDescricao().getNome());
+				item.put("id", listaDeAtracao.get(i).getItemDescricao().getId());
+				item.put("longitude", listaDeAtracao.get(i).getPontoLocalizavel().getLongitude());
+				item.put("latitude", listaDeAtracao.get(i).getPontoLocalizavel().getLatitude());
+				item.put("descricao", listaDeAtracao.get(i).getDescricao().getDescricao());
+				item.put("idTipoAtracao", idTipoAtracao);
+				item.put("icone", icone);
+				atracoes.add(item);
+			}
+			return atracoes;
+		}
+
+		@Override
+		public void onItemClick(AdapterView<?> parent, View view, int position,long id) {
+			Map<String, Object> map = atracoes.get(position);
+			long idAtracao = (Long) map.get("id");
+			long idTipoAtracao = (Long) map.get("idTipoAtracao");
+			double latitude = (Double) map.get("latitude");
+			double longitude = (Double) map.get("longitude");
+			String atracaoNome = (String) map.get("atracaoNome");
+			String descricao = (String) map.get("descricao");
+			int icone = (Integer) map.get("icone");
+			Intent i=new Intent(this, DetalhesActivity.class);
+			i.putExtra("idItem",idAtracao);
+			i.putExtra("latitude",latitude);
+			i.putExtra("longitude",longitude);
+			i.putExtra("idTipo", idTipoAtracao);
+			i.putExtra("nome", atracaoNome);
+			i.putExtra("descricao", descricao);
+			i.putExtra("icone", icone);
+			startActivity(i);
+
+		}
+
+	}

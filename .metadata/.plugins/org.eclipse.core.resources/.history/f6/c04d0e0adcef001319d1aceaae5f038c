@@ -1,0 +1,255 @@
+package com.example.rotaturistica;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import android.annotation.SuppressLint;
+import android.app.ListActivity;
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ImageView;
+import android.widget.SimpleAdapter;
+import android.widget.AdapterView.OnItemClickListener;
+
+import com.example.controller.AtracaoController;
+import com.example.entidade.Atracao;
+
+@SuppressLint("NewApi")
+public class AtracaoSelecionadoActivity extends ListActivity implements OnItemClickListener{
+
+	private List<Map<String, Object>> atracoes ;
+
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		
+		String[] from = {"atracaoNome", "atracaoImagem", "descricao", "id", "latitude", "longitude", "idTipoAtracao", "icone", "multimidia"};
+		int[] to = {R.id.atracao, R.id.atracaoImage};
+
+
+		SimpleAdapter adapter =	new SimpleAdapter(this, listarAtracaoSelecionada(),R.layout.lista_atracao_selecionado, from, to);
+		
+		mudaTituloDaTela();	
+		setListAdapter(adapter);
+		getListView().setOnItemClickListener(this);
+	}
+
+	@SuppressLint("NewApi")
+	private void mudaTituloDaTela() {
+		Intent getIntent = getIntent();
+		long idTipo = getIntent.getLongExtra("idTipo",0);
+		switch ((int)idTipo) {
+		case 1:
+			getActionBar().setTitle("Lista de atrativos Naturais");
+			break;
+		case 2:
+			getActionBar().setTitle("Lista de atrativos Culturais");
+			break;
+		default:
+			break;
+		}
+		
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.atracao_proxima, menu);
+		return true;
+	} 
+
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.near:
+			Intent getIntent = getIntent();
+			long idTipo = getIntent.getLongExtra("idTipo",0);
+			int icone = getIntent.getIntExtra("icone", 0);
+			Intent intent= new Intent(this, NearMap.class);
+			intent.putExtra("idTipo", idTipo);
+			intent.putExtra("item", "atracao");
+			intent.putExtra("icone", icone);
+			startActivity(intent);
+			return true;
+		default:
+			return super.onMenuItemSelected(featureId, item);
+		}
+	}
+
+
+		private List<Map<String, Object>> listarAtracaoSelecionada() {
+
+			Intent intent = getIntent();
+			long idAtracao = intent.getLongExtra("idAtracao",0);
+			long idTipoAtracao = intent.getLongExtra("idTipoAtracao",0);
+			int icone = intent.getIntExtra("icone", 0);
+			
+			
+
+			atracoes = new ArrayList<Map<String,Object>>();
+			AtracaoController atracao = new AtracaoController();
+			List<Atracao> listaDeAtracao = new ArrayList<Atracao>();
+
+
+			listaDeAtracao = atracao.getAtracoes(this, idAtracao);
+
+			for(int i = 0; i < listaDeAtracao.size(); i++){
+
+				Map<String, Object> item = new HashMap<String, Object>();
+
+				item.put("atracaoNome", listaDeAtracao.get(i).getItemDescricao().getNome());
+				item.put("id", listaDeAtracao.get(i).getItemDescricao().getId());
+				item.put("longitude", listaDeAtracao.get(i).getPontoLocalizavel().getLongitude());
+				item.put("latitude", listaDeAtracao.get(i).getPontoLocalizavel().getLatitude());
+				item.put("descricao", listaDeAtracao.get(i).getDescricao().getDescricao());
+				item.put("multimidia", listaDeAtracao.get(i).getMultimidia().getUrl());
+				item.put("idTipoAtracao", idTipoAtracao);
+				item.put("icone", icone);
+				item.put("atracaoImagem", icone);
+				
+				atracoes.add(item);
+			}
+			return atracoes;
+		}
+
+		@Override
+		public void onItemClick(AdapterView<?> parent, View view, int position,long id) {
+			Map<String, Object> map = atracoes.get(position);
+			long idAtracao = (Long) map.get("id");
+			long idTipoAtracao = (Long) map.get("idTipoAtracao");
+			double latitude = (Double) map.get("latitude");
+			double longitude = (Double) map.get("longitude");
+			String atracaoNome = (String) map.get("atracaoNome");
+			String descricao = (String) map.get("descricao");
+			String multimidia = (String) map.get("multimidia");
+			int icone = (Integer) map.get("icone");
+			Intent i=new Intent(this, DetalhesActivity.class);
+			i.putExtra("idItem",idAtracao);
+			i.putExtra("latitude",latitude);
+			i.putExtra("longitude",longitude);
+			i.putExtra("idTipo", idTipoAtracao);
+			i.putExtra("nome", atracaoNome);
+			i.putExtra("descricao", descricao);
+			i.putExtra("icone", icone);
+			i.putExtra("multimidia", multimidia);
+			startActivity(i);
+
+		}
+		
+		private class TipoAtracaoTask extends AsyncTask<String, Void, String[]>{
+
+			@Override
+			protected String[] doInBackground(String... params) {
+				String tipoAtracaoJson = tipoAtracaoJson();
+				try {
+					JSONObject jsonObject = new JSONObject(tipoAtracaoJson);
+					JSONObject jsonObjectTipo = new JSONObject(jsonObject.getString("tipo"));
+					JSONArray jsonArraylistaDeTipoAtracao = new JSONArray(jsonObjectTipo.getString("listaDeTipoAtracao"));
+					JSONObject jsonObject3 = jsonArraylistaDeTipoAtracao.getJSONObject(0);
+					JSONArray jsonReal = new JSONArray(jsonObject3.getString("tipo_atracao"));
+					String [] json = new String[jsonReal.length()];
+					for (int i = 0; i < jsonReal.length(); i++) {
+
+						JSONObject jsonObject4 = jsonReal.getJSONObject(i);
+						String nome = jsonObject4.getString("nome");
+						int id = Integer.parseInt(jsonObject4.getString("id"));
+						json[i] = nome + "-" + id;
+
+					}
+					return json;
+				} catch (Exception e) {
+					Log.w(JsonActivity.class.getName(), "Deu erro");
+					e.printStackTrace();
+				}
+				return null;
+			}
+
+			@Override
+			protected void onPostExecute(String[] result) {
+				String[] from = {"icone", "atracao", "id", "idTipoAtracao"};
+				int[] to = {R.id.tipoAtracao, R.id.atracao};
+				
+				Log.w("", result[0]);
+				
+				SimpleAdapter adapter =	new SimpleAdapter(AtracaoListActivity.this, montaView(result),R.layout.lista_atracao, from, to);
+				setListAdapter(adapter);
+				getListView().setOnItemClickListener(AtracaoListActivity.this);
+
+			}
+
+
+			private List<? extends Map<String, ?>> montaView(String[] result) {
+				atracoes = new ArrayList<Map<String,Object>>();
+				for(int i=0; i < result.length; i++){
+					String[] parts = result[i].split("-");
+					String nome = parts[0];
+					long id = Long.parseLong(parts[1]);
+					Log.w("", "id" + id);
+					Map<String, Object> item = new HashMap<String, Object>();
+
+					if(id == 2){
+						item.put("icone", R.drawable.theater);
+					}else{
+						item.put("icone", R.drawable.riparianhabitat);
+					}
+
+					item.put("atracao", nome);
+					item.put("idTipoAtracao", id);
+					item.put("id", id);
+					atracoes.add(item);
+				}
+				return atracoes;
+			}
+
+			
+			private String tipoAtracaoJson() {
+				StringBuilder builder = new StringBuilder();
+				HttpClient client = new DefaultHttpClient();
+				HttpGet httpGet = new HttpGet("http://10.0.2.2:8282/WSRotaTuristica/tipo_atracoes");
+				try {
+					HttpResponse response = client.execute(httpGet);
+					StatusLine statusLine = response.getStatusLine();
+					int statusCode = statusLine.getStatusCode();
+					if (statusCode == 200) {
+						HttpEntity entity = response.getEntity();
+						InputStream content = entity.getContent();
+						BufferedReader reader = new BufferedReader(new InputStreamReader(content));
+						String line;
+						while ((line = reader.readLine()) != null) {
+							builder.append(line);
+						}
+					} else {
+						Log.e(JsonActivity.class.toString(), "Failed to download file");
+					}
+				} catch (ClientProtocolException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				return builder.toString();
+			}
+		}
+
+	}

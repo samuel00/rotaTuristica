@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Rota Turística</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="ver_no_mapa">Ver no Mapa</string>
+    <string name="title_activity_json">JsonActivity</string>
+    <string name="descricao_titulo">Descrição</string>
+    <string name="endereco_titulo">Endereço</string>
+    <string name="descricao_municipio">Descrição</string>
+    <string name="settings">Configuração</string>
+    <string name="modenet">Modo de trasmissão</string>
+    <string name="title_activity_configuracao">Configuração</string>
+    <string name="title_activity_mode_trasmition">Modo de trasmissão</string>
+    <string name="radio_off">Off Line</string>
+    <string name="radio_on">On Line</string>
+    <string name="download_data">Download de Dados</string>
+    <string name="title_activity_download">Download</string>
+    <string name="service">Serviços</string>
+    <string name="attractive">Atrativos</string>
+    <string name="route">Rotas</string>
+    <string name="abortar">Rotas</string>
+    <string name="pausar">Rotas</string>
+    <string name="continuar">Rotas</string>
+    <string name="texto_slide">Arraste para ver mais imagens</string>
+    <string name="title_activity_download_list_item">Itens para baixar</string>
+    <string name="title_activity_download_atracao">Lista de atrativos</string>
+    <string name="title_activity_download_service">Lista de servicos</string>
+    <string name="title_activity_download_route">Lista de rotas</string>
+
+</resources>

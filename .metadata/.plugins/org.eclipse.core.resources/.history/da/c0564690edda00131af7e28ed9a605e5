@@ -1,0 +1,28 @@
+package com.example.controller;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+
+import com.example.dao.Conexao;
+import com.example.rotaturistica.MainActivity;
+
+public class ServicoController { 
+
+	private Conexao conexao;
+
+	public void salvar(MainActivity mainActivity) {
+		conexao = new Conexao(mainActivity);
+		SQLiteDatabase db = conexao.getWritableDatabase();
+		
+		ContentValues values = new ContentValues();
+		
+		values.put("id_versao", 1);
+		values.put("municipio", 1);
+		values.put("nome", "Teatro da Paz");
+		
+	}
+
+
+
+}

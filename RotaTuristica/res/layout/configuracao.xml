@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal" >
+
+<!--     <LinearLayout -->
+<!--         android:layout_width="wrap_content" -->
+<!--         android:layout_height="match_parent" -->
+<!--         android:gravity="center" -->
+<!--         android:orientation="vertical" > -->
+
+<!--         <ImageView -->
+<!--             android:id="@+id/configuracaoImage" -->
+<!--             android:layout_width="wrap_content" -->
+<!--             android:layout_height="wrap_content"  -->
+<!--             android:src="@drawable/net"/> -->
+<!--     </LinearLayout> -->
+
+<!--     <LinearLayout -->
+<!--         android:layout_width="wrap_content" -->
+<!--         android:layout_height="match_parent" -->
+<!--         android:layout_marginLeft="10dp" -->
+<!--         android:orientation="vertical" > -->
+
+<!--         <TextView -->
+<!--             android:id="@+id/configuracaoText" -->
+<!--             android:layout_width="wrap_content" -->
+<!--             android:layout_height="wrap_content"/> -->
+<!--     </LinearLayout> -->
+
+	<LinearLayout style="@style/LinearLayout_horizontal" >
+
+        <ImageView
+            android:id="@+id/configuracaoImage"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:contentDescription="@+id/iv_mododetransmissao"/>
+
+        <TextView
+            style="@style/TextView_Listas"
+            android:id="@+id/configuracaoText"/>
+    </LinearLayout>
+
+</LinearLayout>

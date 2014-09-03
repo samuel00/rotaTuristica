@@ -1,0 +1,20 @@
+package com.example.controller;
+
+import android.content.Context;
+
+import com.example.dao.Conexao;
+import com.example.rotaturistica.MainActivity;
+
+public class ServicoController { 
+	
+	private Conexao conexao;
+
+	public void salvar(MainActivity mainActivity) {
+
+			conexao = new Conexao(mainActivity);
+		
+	}
+
+	
+	
+}

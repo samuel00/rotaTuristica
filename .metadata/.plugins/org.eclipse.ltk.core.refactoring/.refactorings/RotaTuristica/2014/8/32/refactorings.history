@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename type &apos;com.example.utils.ProgressDialog&apos; to &apos;DialogProgress&apos;&#x0A;- Original project: &apos;RotaTuristica&apos;&#x0A;- Original element: &apos;com.example.utils.ProgressDialog&apos;&#x0A;- Renamed element: &apos;com.example.utils.DialogProgress&apos;&#x0A;- Update references to refactored element&#x0A;- Update textual occurrences in comments and strings" description="Rename type &apos;ProgressDialog&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.type" input="/src&lt;com.example.utils{ProgressDialog.java[ProgressDialog" matchStrategy="1" name="DialogProgress" qualified="false" references="true" similarDeclarations="false" stamp="1407531526061" textual="false" version="1.0"/>
+</session>
